@@ -21,10 +21,10 @@ public class EnemyController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        moveEnemy();
+        MoveEnemy();
     }
 
-    private void moveEnemy()
+    private void MoveEnemy()
     {
         Vector3 targetPosition = (isMoving) ? endPosition : startPosition;
 

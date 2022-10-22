@@ -9,11 +9,15 @@ public class PlayerMovement : MonoBehaviour
     public int speed;
     public int jumpForce;
     private Rigidbody2D physics;
+    private SpriteRenderer sprite;
+    private Animator animator;
 
     // Start is called before the first frame update
     void Start()
     {
         physics = GetComponent<Rigidbody2D>();
+        sprite = GetComponent<SpriteRenderer>();
+        animator = GetComponent<Animator>();
     }
     private void FixedUpdate()
     {
@@ -24,11 +28,28 @@ public class PlayerMovement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Space) && TouchingGround()) {
+        if (Input.GetKeyDown(KeyCode.W) && TouchingGround()) {
             physics.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
-
         }
 
+        if (physics.velocity.x > 0) sprite.flipX = false;
+        if (physics.velocity.x < 0) sprite.flipX = true;
+
+        animatePlayer();
+    }
+
+    private void animatePlayer()
+    {
+        if (!TouchingGround())
+        {
+            animator.Play("PlayerJump");
+        } else if ((physics.velocity.x > 0 || physics.velocity.x < -1) && physics.velocity.y == 0)
+        {
+            animator.Play("PlayerRunning");
+        } else if ((physics.velocity.x > -1 || physics.velocity.x < 1) && physics.velocity.y == 0)
+        {
+            animator.Play("PlayerIdle");
+        }
     }
 
     private bool TouchingGround(){
