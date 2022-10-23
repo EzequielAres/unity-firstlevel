@@ -37,7 +37,7 @@ public class EnemyController : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Player"))
         {
-            collision.gameObject.GetComponent<PlayerMovement>().endGame();
+            collision.gameObject.GetComponent<PlayerMovement>().LoseLive();
         }
     }
 
