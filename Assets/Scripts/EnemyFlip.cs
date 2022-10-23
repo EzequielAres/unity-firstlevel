@@ -33,11 +33,13 @@ public class EnemyFlip : MonoBehaviour
     {
         if (transform.position.x > -1 && transform.position.x < 1)
         {
-            animator.Play("Enemy2Idle");
+            if (this.CompareTag("Enemy"))
+                animator.Play("EnemyIdle"); else animator.Play("Enemy2Idle");
         }
         else if (transform.position.x < 0 || transform.position.x > 0)
         {
-            animator.Play("Enemy2Running");
+            if (this.CompareTag("Enemy"))
+                animator.Play("EnemyRunning"); else animator.Play("Enemy2Running");
         }
     }
 }
