@@ -20,6 +20,7 @@ public class PlayerMovement : MonoBehaviour
     private Rigidbody2D physics;
     private SpriteRenderer sprite;
     private Animator animator;
+    private GameDataController gameData;
 
     void Start()
     {
@@ -29,6 +30,7 @@ public class PlayerMovement : MonoBehaviour
         physics = GetComponent<Rigidbody2D>();
         sprite = GetComponent<SpriteRenderer>();
         animator = GetComponent<Animator>();
+        gameData = GameObject.Find("GameData").GetComponent<GameDataController>();    
     }
     private void FixedUpdate()
     {
@@ -102,7 +104,8 @@ public class PlayerMovement : MonoBehaviour
     }
     public void EndGame()
     {
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        gameData.Win = false;
+        SceneManager.LoadScene("EndLevel");
     }
 
     public void IncreaseScore(int score)
@@ -113,6 +116,8 @@ public class PlayerMovement : MonoBehaviour
     public void WinGame()
     {
         score = (livesCount * 100) + (levelTime - timeSpended);
-        Debug.Log("WIN!! " + score);
+        gameData.Score = score;
+        gameData.Win = true;
+        SceneManager.LoadScene("EndLevel");
     }
 }
