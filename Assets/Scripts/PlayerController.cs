@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class PlayerMovement : MonoBehaviour
+public class PlayerController : MonoBehaviour
 {
 
     public int speed;
@@ -12,8 +12,9 @@ public class PlayerMovement : MonoBehaviour
     public int livesCount;
     public int levelTime;
     public Canvas canvas;
+    public AudioClip jumpSound;
+    public AudioClip hitSound;
 
-    private HUDController hud;
     private int timeSpended;
     private float startTime;
     private bool vulnerable;
@@ -21,6 +22,13 @@ public class PlayerMovement : MonoBehaviour
     private SpriteRenderer sprite;
     private Animator animator;
     private GameDataController gameData;
+    private HUDController hud;
+    private AudioSource audioSource;
+
+    public void Awake()
+    {
+        audioSource = GetComponent<AudioSource>();
+    }
 
     void Start()
     {
@@ -43,6 +51,7 @@ public class PlayerMovement : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.W) && TouchingGround()) {
             physics.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
+            audioSource.PlayOneShot(jumpSound);
         }
 
         if (physics.velocity.x > 0) sprite.flipX = false;
@@ -93,6 +102,7 @@ public class PlayerMovement : MonoBehaviour
             vulnerable = false;
             livesCount--;
             animator.Play("PlayerInvulnerable");
+            audioSource.PlayOneShot(hitSound);
         }
         if (livesCount == 0) EndGame();
         Invoke("SetVulnerable", 3f);
