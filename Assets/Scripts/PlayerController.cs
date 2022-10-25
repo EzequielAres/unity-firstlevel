@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -11,10 +12,14 @@ public class PlayerController : MonoBehaviour
     public int score;
     public int livesCount;
     public int levelTime;
+    public float groundCheckRadius;
+    public Transform groundCheck;
+    public LayerMask groundLayer;
     public Canvas canvas;
     public AudioClip jumpSound;
     public AudioClip hitSound;
 
+    public bool canDoubleJump;
     private int timeSpended;
     private float startTime;
     private bool vulnerable;
@@ -48,17 +53,23 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
-
+        // Jump and double jump
         if (Input.GetKeyDown(KeyCode.W) && TouchingGround()) {
-            physics.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
-            audioSource.PlayOneShot(jumpSound);
+            Jump();
+
+        } else if (Input.GetKeyDown(KeyCode.W) && canDoubleJump) {
+            Jump();
+            canDoubleJump = false;
+
         }
 
+        // Flip sprite
         if (physics.velocity.x > 0) sprite.flipX = false;
         if (physics.velocity.x < 0) sprite.flipX = true;
 
         AnimatePlayer();
 
+        // Win condition
         hud.SetLeftCollectionables(GameObject.FindGameObjectsWithTag("Collectionable").Length);
         if (GameObject.FindGameObjectsWithTag("Collectionable").Length == 0)
         {
@@ -70,9 +81,16 @@ public class PlayerController : MonoBehaviour
 
         hud.SetLivesTxt(livesCount);
 
+        // Lose condition
         if (levelTime - timeSpended <= 0) {
             EndGame();
         }
+    }
+
+    private void Jump()
+    {
+        physics.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
+        audioSource.PlayOneShot(jumpSound);
     }
 
     private void AnimatePlayer()
@@ -89,11 +107,10 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private bool TouchingGround(){
-
-        RaycastHit2D touching = Physics2D.Raycast(transform.position + new Vector3(0, -1f, 0), Vector2.down, 0.1f);
-
-        return touching.collider != null;
+    private bool TouchingGround() { 
+        bool touchingGround = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
+        canDoubleJump = (touchingGround) ? true : canDoubleJump;
+        return touchingGround;
     }
 
     public void LoseLive()
