@@ -13,13 +13,19 @@ public class PlayerController : MonoBehaviour
     public int livesCount;
     public int levelTime;
     public float groundCheckRadius;
+    public float wallJumpTime = 0.2f;
+    public float wallSlideSpeed = 0.3f;
+    public float wallDistance = 1f;
     public Transform groundCheck;
     public LayerMask groundLayer;
     public Canvas canvas;
     public AudioClip jumpSound;
     public AudioClip hitSound;
 
-    public bool canDoubleJump;
+    public bool isWallSliding;
+    private RaycastHit2D checkWallHit;
+    private float jumpTime;
+    private bool canDoubleJump;
     private int timeSpended;
     private float startTime;
     private bool vulnerable;
@@ -47,8 +53,27 @@ public class PlayerController : MonoBehaviour
     }
     private void FixedUpdate()
     {
+        // x movement
         float movementx = Input.GetAxis("Horizontal");
         physics.velocity = new Vector2(movementx * speed, physics.velocity.y);
+
+        // Wall jump
+        if (!sprite.flipX) {
+            checkWallHit = Physics2D.Raycast(transform.position, new Vector2(wallDistance, 0), wallDistance, groundLayer);
+        } else {
+            checkWallHit = Physics2D.Raycast(transform.position, new Vector2(-wallDistance, 0), wallDistance, groundLayer);
+        }
+
+        if (checkWallHit && !TouchingGround() && movementx != 0) {
+            isWallSliding = true;
+            jumpTime = Time.time + wallJumpTime;
+        } else if (jumpTime < Time.time) {
+            isWallSliding = false;
+        }
+
+        if (isWallSliding) {
+            physics.velocity = new Vector2(physics.velocity.x, physics.velocity.y * wallSlideSpeed);
+        }
     }
 
     void Update()
@@ -61,6 +86,8 @@ public class PlayerController : MonoBehaviour
             Jump();
             canDoubleJump = false;
 
+        } else if (isWallSliding && Input.GetKeyDown(KeyCode.W)) {
+            WallJump();
         }
 
         // Flip sprite
@@ -85,6 +112,11 @@ public class PlayerController : MonoBehaviour
         if (levelTime - timeSpended <= 0) {
             EndGame();
         }
+    }
+
+    private void WallJump()
+    {
+        physics.velocity = Vector2.up * jumpForce;
     }
 
     private void Jump()
