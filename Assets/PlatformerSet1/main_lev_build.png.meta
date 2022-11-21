@@ -33,7 +33,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 1
+    filterMode: 0
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -37823,8 +37823,8 @@ TextureImporter:
       main_lev_build_1460: -714965509
       main_lev_build_1110: -604497876
       main_lev_build_56: 944100320
-      main_lev_build_1295: 254885217
       main_lev_build_1757: -69918221
+      main_lev_build_1295: 254885217
       main_lev_build_523: 564224353
       main_lev_build_1732: -1377357808
       main_lev_build_970: 1158004089

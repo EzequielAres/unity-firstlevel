@@ -53,14 +53,18 @@ public class PlayerController : MonoBehaviour
     }
     private void FixedUpdate()
     {
-        // x movement
+
         float movementx = Input.GetAxis("Horizontal");
+
+        // x movement
         physics.velocity = new Vector2(movementx * speed, physics.velocity.y);
 
         // Wall jump
         if (!sprite.flipX) {
             checkWallHit = Physics2D.Raycast(transform.position, new Vector2(wallDistance, 0), wallDistance, groundLayer);
+            Debug.DrawRay(transform.position, new Vector2(wallDistance, 0), Color.red);
         } else {
+            Debug.DrawRay(transform.position, new Vector2(-wallDistance, 0), Color.red);
             checkWallHit = Physics2D.Raycast(transform.position, new Vector2(-wallDistance, 0), wallDistance, groundLayer);
         }
 
@@ -74,10 +78,13 @@ public class PlayerController : MonoBehaviour
         if (isWallSliding) {
             physics.velocity = new Vector2(physics.velocity.x, physics.velocity.y * wallSlideSpeed);
         }
+
     }
 
     void Update()
     {
+        AnimatePlayer();
+
         // Jump and double jump
         if (Input.GetKeyDown(KeyCode.W) && TouchingGround()) {
             Jump();
@@ -91,10 +98,9 @@ public class PlayerController : MonoBehaviour
         }
 
         // Flip sprite
-        if (physics.velocity.x > 0) sprite.flipX = false;
-        if (physics.velocity.x < 0) sprite.flipX = true;
+        if (physics.velocity.x > 0.2) sprite.flipX = false;
+        if (physics.velocity.x < -0.2) sprite.flipX = true;
 
-        AnimatePlayer();
 
         // Win condition
         hud.SetLeftCollectionables(GameObject.FindGameObjectsWithTag("Collectionable").Length);
@@ -116,27 +122,22 @@ public class PlayerController : MonoBehaviour
 
     private void WallJump()
     {
-        physics.velocity = Vector2.up * jumpForce;
+        physics.velocity = new Vector2(physics.velocity.x, jumpForce * 2);
     }
 
     private void Jump()
     {
-        physics.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
+        physics.velocity = new Vector2(physics.velocity.x, jumpForce);
         audioSource.PlayOneShot(jumpSound);
     }
 
     private void AnimatePlayer()
     {
-        if (!TouchingGround())
-        {
-            animator.Play("PlayerJump");
-        } else if ((physics.velocity.x > 0 || physics.velocity.x < -1) && physics.velocity.y == 0)
-        {
-            animator.Play("PlayerRunning");
-        } else if ((physics.velocity.x > -1 || physics.velocity.x < 1) && physics.velocity.y == 0)
-        {
-            animator.Play("PlayerIdle");
-        }
+        float movementx = Input.GetAxis("Horizontal");
+
+        animator.SetBool("isJumping", !TouchingGround());        
+        animator.SetBool("isRunning", (movementx > 0 || movementx < 0) && physics.velocity.y == 0);
+        animator.SetBool("isWallSliding", isWallSliding);
     }
 
     private bool TouchingGround() { 
